@@ -69,4 +69,4 @@ async function runScript() {
   await client.close();
 }
 
-setInterval(runScript, 1 * 60 * 1000);
+setInterval(runScript, 10 * 60 * 1000);
