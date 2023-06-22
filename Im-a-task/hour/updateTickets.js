@@ -21,18 +21,22 @@ const getData = async () => {
 };
 
 async function runScript() {
-  console.log("Started");
   const uri = 'mongodb+srv://koii:KoiiToTheMoon@im-a-task.b2xhqzs.mongodb.net/?retryWrites=true&w=majority';
   const client = new MongoClient(uri);
   await client.connect();
   const database = client.db('games');
+  const config = database.collection('config');
+  
+  const timeDoc = await config.findOne({ _id: "time" });
+  const time = timeDoc.value;
+
   const hourlyCheck = database.collection('hourly');
   const allTimeTickets = database.collection('allTime');
 
   // Reset hourly submissions every hour
   setInterval(async () => {
     await hourlyCheck.deleteMany({});
-  }, 600000); // 1 hour
+  }, time);
 
   // Update ticket counts every 10 minutes
   setInterval(async () => {
@@ -46,7 +50,7 @@ async function runScript() {
     }));
     await hourlyCheck.bulkWrite(bulkOps);
     await allTimeTickets.bulkWrite(bulkOps);
-  }, 60000); // 1 minutes
+  }, time / 10);
 }
 
 runScript().catch(console.error);

@@ -5,8 +5,12 @@ async function runScript() {
   const client = new MongoClient(uri);
   await client.connect();
   const database = client.db('games');
-  const hourlyCheck = database.collection('hourly');
+  const config = database.collection('config');
+  
+  const timeDoc = await config.findOne({ _id: "time" });
+  const time = timeDoc.value;
 
+  const hourlyCheck = database.collection('hourly');
   const winnersDB = client.db("winners");
   const winner = winnersDB.collection('winner');
 
@@ -31,7 +35,7 @@ async function runScript() {
 
     await winner.insertOne({ address: winnerAddress });
     console.log('Lucky draw winner:', winnerAddress);
-  }, 600000); // 10 minutes
+  }, time);
 }
 
 runScript().catch(console.error);
